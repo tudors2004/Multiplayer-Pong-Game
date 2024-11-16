@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong Game</title>
+    <style>
+        canvas {
+            background: black;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+<!--    incarca libraria socket.io-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        //for public ip address you need port forwarding on the 5000 port to your local ip address on your router
+        //(not necessary if you are using localhost)
+        const socket = io('http://youripaddress:5000'); // HERE YOU NEED TO PUT YOUR LOCAL / PUBLIC IP ADDRESS
+
+        //variabilele pozitiei si scorului
+        let leftPaddleY = 250;
+        let rightPaddleY = 250;
+        let ballX = 400;
+        let ballY = 300;
+        let leftPlayerScore = 0;
+        let rightPlayerScore = 0;
+
+        let keys = {};
+
+        socket.on('update', (data) => { //primeste elemenele update de la server
+            //si actualizeaza pozitiile si scorul
+            leftPaddleY = data.left_paddle_y;
+            rightPaddleY = data.right_paddle_y;
+            ballX = data.ball_x;
+            ballY = data.ball_y;
+            leftPlayerScore = data.left_player_score;
+            rightPlayerScore = data.right_player_score;
+            draw(); // deseneaza elementele
+        });
+
+        document.addEventListener('keydown', (event) => {
+            keys[event.key] = true;
+        });
+        //cand tasta e apasata se seteaza true in keys si cand e eliberata se seteaza false
+        document.addEventListener('keyup', (event) => {
+            keys[event.key] = false;
+        });
+
+        function updatePaddlePosition() {
+            if (keys['ArrowUp'] || keys['w']) {
+                socket.emit('move', 'up');
+            }
+            if (keys['ArrowDown'] || keys['s']) {
+                socket.emit('move', 'down');
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'white';
+            ctx.fillRect(30, leftPaddleY, 10, 100);
+            ctx.fillRect(760, rightPaddleY, 10, 100);
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, 10, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.font = '30px Arial';
+            ctx.fillText(leftPlayerScore, 350, 50);
+            ctx.fillText(rightPlayerScore, 420, 50);
+        }
+
+        function gameLoop() {
+            updatePaddlePosition();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>
