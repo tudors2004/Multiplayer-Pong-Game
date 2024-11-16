@@ -10,4 +10,10 @@ Real-time multiplayer
 
 Written in Python for the server and HTML for the client.
 
-Simple to use: just start the server and access the game from a browser!
+Simple to use: just start the web_server and access the game from a browser!
+
+Local testing option by running testserver and testclient in IDE.
+
+### ⚠️ For use with public address, you need to do port forwarding on port 5000 in the router. Check your router's documentation for instructions.
+
+Contributions are welcome! Submit a pull request or open an issue for suggestions or problem reporting.
